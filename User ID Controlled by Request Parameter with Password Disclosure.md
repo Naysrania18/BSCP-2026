@@ -1,5 +1,5 @@
 
-# PortSwigger Web Security Academy: User ID Controlled by Request Parameter with Password Disclosure
+# PortSwigger Web Security Academy: User ID Controlled by Request Parameter with Password Disclosure.
 
 This repository contains a detailed walkthrough and solution for the **"User ID controlled by request parameter with password disclosure"** lab found in the Broken Access Control module of the PortSwigger Web Security Academy.
 
