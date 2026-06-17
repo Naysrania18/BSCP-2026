@@ -1,4 +1,4 @@
-# PortSwigger Lab Walkthrough: User role controlled by request parameter
+# PortSwigger Lab Walkthrough: User role controlled by request parameter.
 
 This guide outlines how to solve the [PortSwigger Academy "User role controlled by request parameter"](https://portswigger.net/web-security/access-control/lab-user-role-controlled-by-request-parameter) lab. 
 
