@@ -1,4 +1,4 @@
-# User ID Controlled by Request Parameter with Data Leakage in Redirect
+# User ID Controlled by Request Parameter with Data Leakage in Redirect.
 
 ## Lab Goal
 
