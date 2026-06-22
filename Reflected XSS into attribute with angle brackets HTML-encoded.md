@@ -1,4 +1,4 @@
-# PortSwigger Web Security Academy Lab Write-up
+# PortSwigger Web Security Academy Lab Write-up.
 
 ## Lab Name: Reflected XSS into attribute with angle brackets HTML-encoded
 **Difficulty:** Apprentice  
