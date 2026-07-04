@@ -1,4 +1,4 @@
-# LAB: OS Command Injection, Simple Case.ffdskjdskl
+# LAB: OS Command Injection, Simple Case
 
 The target application takes user input via a product stock check feature and executes an arbitrary operating system command using that input. Because the input is not validated or sanitized, an attacker can append their own commands. 
 
