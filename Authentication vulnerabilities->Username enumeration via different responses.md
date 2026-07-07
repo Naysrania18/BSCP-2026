@@ -1,4 +1,4 @@
-## PortSwigger Lab Solution: Username Enumeration via Different Responses## Lab Description
+## PortSwigger Lab Solution: Username Enumeration via Different Responses.## Lab Description
 This lab is vulnerable to username enumeration and password brute-force attacks, allowing for user enumeration, password cracking, and unauthorized account access. The objective is to identify valid usernames by analyzing differing server responses and subsequently brute-forcing the password.
 ------------------------------
 ## Step-by-Step Solution## Phase 1: Enumerate a Valid Username
