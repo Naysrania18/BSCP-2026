@@ -1,4 +1,4 @@
-# Lab: User ID Controlled by Request Parameter, with Unpredictable User IDs
+# Lab: User ID Controlled by Request Parameter, with Unpredictable User IDs.
 
 ## Objective
 
