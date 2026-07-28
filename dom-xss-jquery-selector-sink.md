@@ -1,4 +1,4 @@
-# Lab: DOM XSS in jQuery Selector Sink Using a Hashchange Event.
+# Lab: DOM XSS in jQuery Selector Sink Using a Hashchange Event
 
 ## Lab Description
 
