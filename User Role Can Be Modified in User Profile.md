@@ -1,4 +1,4 @@
-# PortSwigger Lab: User Role Can Be Modified in User Profile
+# PortSwigger Lab: User Role Can Be Modified in User Profile.
 
 ## Lab Description
 
