@@ -1,4 +1,4 @@
-# Lab: DOM XSS in jQuery Anchor `href` Attribute Sink Using `location.search`.
+# Lab: DOM XSS in jQuery Anchor `href` Attribute Sink Using `location.search`
 
 
 
