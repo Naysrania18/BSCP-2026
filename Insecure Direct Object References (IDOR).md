@@ -1,4 +1,4 @@
-# Insecure Direct Object References (IDOR)
+# Insecure Direct Object References (IDOR).
 
 ## Lab Goal
 
