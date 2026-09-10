@@ -1,4 +1,4 @@
-# PortSwigger Lab Solution: 2FA Simple Bypass
+# PortSwigger Lab Solution: 2FA Simple Bypass.
 
 ## Lab Description
 This lab features a two-factor authentication (2FA) mechanism that can be bypassed. You are provided with valid credentials for both your account and the victim's account:
