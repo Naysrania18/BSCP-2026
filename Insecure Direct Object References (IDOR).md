@@ -16,7 +16,7 @@ Example request:
 
 ```http
 GET /download-transcript/1.txt HTTP/1.1
-Host: lab-id.web-security-academy.net
+Host: lab-id.web-security-academy.net.
 ```
 
 ### 2. Examine the URL Structure
